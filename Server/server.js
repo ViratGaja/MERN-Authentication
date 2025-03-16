@@ -1,23 +1,25 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import 'dotenv/config';
+import connectDB from "./config/mongodb.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+connectDB()
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:5000", // Replace with your frontend URL
+  origin: "http://localhost:5000",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
 // Test route
 app.get('/', (req, res) => {
-  res.send("API Working");
+  res.send("API Working Good");
 });
 
 // Error handling middleware
