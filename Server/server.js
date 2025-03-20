@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./config/mongodb.js"; // Ensure this file connects to MongoDB
-import { authRouter } from "./routes/authRoutes.js";
+import  authRouter from "./routes/authRoutes.js";
 
 dotenv.config();
 

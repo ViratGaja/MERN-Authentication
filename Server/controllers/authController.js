@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../Models/usermode.js";
-
+import transporter from "../config/nodemailler.js";
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
 
 export const register = async (req, res) => {
@@ -30,6 +30,23 @@ export const register = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    //sending email
+    const mailOptions={
+      from:process.env.SENDER_EAMIL,
+      to:email,
+      subject:"Hello everybody and welcome to today match",
+      text:`Here started the Match Mr/Ms : ${email}`
+    }
+    try {
+      await transporter.sendMail(mailOptions);
+      // Email sent successfully
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      // Continue with the rest of your code instead of failing the entire registration
+    }
+
+
 
     res.status(201).json({ success: true, message: "User registered successfully", token });
   } catch (err) {
@@ -90,3 +107,4 @@ export const logout = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
