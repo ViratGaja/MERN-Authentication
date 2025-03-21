@@ -33,17 +33,20 @@ export const register = async (req, res) => {
 
     //sending email
     const mailOptions={
-      from:process.env.SENDER_EAMIL,
-      to:email,
-      subject:"Hello everybody and welcome to today match",
-      text:`Here started the Match Mr/Ms : ${email}`
+      from: process.env.SENDER_EMAIL, // Fix the typo here
+      to: email,
+      subject: "Hello everybody and welcome to today match",
+      text: `Here started the Match Mr/Ms : ${email}`
     }
     try {
-      await transporter.sendMail(mailOptions);
-      // Email sent successfully
+      console.log("Attempting to send email to:", email);
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully:", info.response);
     } catch (error) {
-      console.error("Failed to send email:", error);
-      // Continue with the rest of your code instead of failing the entire registration
+      console.error("Failed to send email:", error.message);
+      // If you have detailed error, log more properties
+      if (error.code) console.error("Error code:", error.code);
+      if (error.command) console.error("Failed command:", error.command);
     }
 
 
@@ -107,4 +110,34 @@ export const logout = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+export const sendVerifyotp=async(req,res)=>{
+  try{
+    const {userId}=req.body;
+    const user=await userModel.findById(userId);
+
+    if(user.isAccountVerified){
+      return res.jso({success:false,message:"uer Already verified"})
+    }
+
+    const otp=String(Math.floor(100000+Math.random() *900000))
+
+    user.verifyOtp=otp;
+    user.verifyOtpExpireAt=Date.now()+24*60*60*1000
+    await user.save();
+
+    const mailOptions={
+      from: process.env.SENDER_EMAIL, // Fix the typo here
+      to: user.email,
+      subject: "Account verification otp",
+      text: `Your otp is ${otp}.verify your account using this otp`
+    }
+    await transporter.sendMail(mailOptions)
+    res.json({success:true,message:'verification ot[ send your email'})
+    
+  }
+  catch(err){
+    res.json({success:false,message:err.message})
+  }
+}
 
